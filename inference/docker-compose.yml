@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: fastapi_app
+    env_file:
+      - ../supabase-project/.env
+    environment:
+      MODEL_PATH: /model/resnet.pth
+      # Connect to the Supabase DB container from supabase-project
+      # Ensure both stacks share the same external network 'supanet'
+      DB_DSN: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@supabase-db:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
+      SCORE_THRESHOLD: "0.25"
+    volumes:
+      - ./app:/app
+      - ./model:/model
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+    external: true
+    name: supanet
+
+
